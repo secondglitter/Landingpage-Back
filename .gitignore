@@ -1,0 +1,19 @@
+
+# Node modules para back y front
+backend/node_modules/
+frontend/node_modules/
+
+# Archivos de logs
+*.log
+
+# Configs de entorno (para no subir claves)
+backend/.env
+frontend/.env
+
+# Directorios de build
+frontend/dist/
+backend/build/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
