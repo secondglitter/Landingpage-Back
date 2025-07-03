@@ -8,11 +8,20 @@ const Joi = require("joi");
 
 const app = express();
 
-app.use(cors({
-  origin: "https://landingpage-front-opal.vercel.app",
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"],
-}));
+app.use(
+  cors({
+    origin: "https://landingpage-front-opal.vercel.app",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
+  })
+);
 
 app.use(express.json());
 
