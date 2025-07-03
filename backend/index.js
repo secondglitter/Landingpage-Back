@@ -7,7 +7,13 @@ const pool = require("./db");
 const Joi = require("joi");
 
 const app = express();
-app.use(cors());
+
+// ✅ CORS bien configurado
+app.use(cors({
+  origin: "https://landingpage-front-opal.vercel.app",
+  methods: ["GET", "POST", "OPTIONS"],
+}));
+
 app.use(express.json());
 
 // Esquema de validación con Joi
