@@ -9,22 +9,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const app = express();
-
-app.use(
-  cors({
-    origin: "https://landingpage-front-opal.vercel.app",
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-      "Origin",
-    ],
-  })
-);
-
+app.use(cors());
 app.use(express.json());
 
 const SECRET_KEY = process.env.JWT_SECRET || "supersecreto123";
@@ -32,6 +17,22 @@ const SECRET_KEY = process.env.JWT_SECRET || "supersecreto123";
 const users = [
   { email: "admin@demo.com", passwordHash: bcrypt.hashSync("12345678910", 10) }
 ];
+
+app.post("/api/login", async (req, res) => {
+  const { error, value } = loginSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  const { email, password } = value;
+  const user = users.find(u => u.email === email);
+
+  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
+    return res.status(401).json({ error: "Credenciales inválidas" });
+  }
+
+  const token = jwt.sign({ email }, SECRET_KEY, { expiresIn: "2h" });
+  res.json({ token });
+});
+
 
 // Esquema de validación con Joi
 const contactoSchema = Joi.object({
@@ -48,17 +49,25 @@ const contactoSchema = Joi.object({
   terminos: Joi.boolean().valid(true).required(),
 });
 
-app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body;
-  const user = users.find(u => u.email === email);
-
-  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
-    return res.status(401).json({ error: "Credenciales inválidas" });
-  }
-
-  const token = jwt.sign({ email }, SECRET_KEY, { expiresIn: "2h" });
-  res.json({ token });
+const loginSchema = Joi.object({
+  email: Joi.string()
+    .trim()
+    .email({ tlds: { allow: false } })
+    .pattern(/^[^'"=*.;\s]+@[^'"=*.;\s]+\.[^'"=*.;\s]+$/)
+    .required()
+    .messages({
+      "string.pattern.base": "El correo contiene caracteres no permitidos",
+    }),
+  password: Joi.string()
+    .min(8)
+    .max(100)
+    .pattern(/^[^'"=*.;]+$/)
+    .required()
+    .messages({
+      "string.pattern.base": "La contraseña contiene caracteres no permitidos",
+    }),
 });
+
 
 app.post("/api/contacto", async (req, res) => {
   try {
@@ -152,6 +161,8 @@ app.get("/api/leads", verifyToken, async (req, res) => {
   }
 });
 
+
+
 app.put("/api/leads/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
@@ -174,6 +185,7 @@ app.put("/api/leads/:id", verifyToken, async (req, res) => {
     res.status(500).json({ error: "Error en el servidor" });
   }
 });
+
 
 // Escuchar en el puerto definido en el .env o por defecto en 3000
 const PORT = process.env.PORT || 3000;
