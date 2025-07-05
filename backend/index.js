@@ -15,7 +15,7 @@ app.use(express.json());
 const SECRET_KEY = process.env.JWT_SECRET || "supersecreto123";
 
 const users = [
-  { email: "admin@demo.com", passwordHash: bcrypt.hashSync("12345678910", 10) }
+  { email: "admin@gmail.com", passwordHash: bcrypt.hashSync("admin12345", 10) }
 ];
 
 app.post("/api/login", async (req, res) => {
