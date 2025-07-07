@@ -13,9 +13,11 @@ app.use(cors());
 app.use(express.json());
 
 const SECRET_KEY = process.env.JWT_SECRET || "supersecreto123";
+const USER = process.env.USER;
+const PASSWORD = process.env.PASSWORD;
 
 const users = [
-  { email: "admin@gmail.com", passwordHash: bcrypt.hashSync("admin12345", 10) }
+  { email: USER, passwordHash: bcrypt.hashSync(PASSWORD, 10) }
 ];
 
 app.post("/api/login", async (req, res) => {
